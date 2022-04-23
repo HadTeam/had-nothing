@@ -1,0 +1,23 @@
+{
+  "name": "had-nothing",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HadTeam/had-nothing.git"
+  },
+  "author": "CornWorld",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/HadTeam/had-nothing/issues"
+  },
+  "homepage": "https://github.com/HadTeam/had-nothing#readme",
+  "dependencies": {
+    "mqtt": "^4.3.7"
+  }
+}
