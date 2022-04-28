@@ -1,5 +1,7 @@
 import fs from 'fs';
 
+let pluginDirPrefix = "had-nothing-plugin-";
+
 export default class PluginManager {
     pluginList = [];
     pluginNameMap = {};
@@ -7,7 +9,7 @@ export default class PluginManager {
     loadedPluginNum = -1;
     
     constructor() {
-        let pluginDir = global.config["pluginDir"] ?? "./plugin/";
+        let pluginDir = global.config["pluginDir"] ?? "./node_modules/";
         this.scanPluginDir(pluginDir);
     }
     
@@ -15,7 +17,7 @@ export default class PluginManager {
         if (pluginDir.slice(-1) !== '/') pluginDir += '/';
         try {
             let dirList = fs.readdirSync(pluginDir).filter((name) => {
-                return fs.statSync(pluginDir + name).isDirectory();
+                return name.search("^" + pluginDirPrefix) !== -1 && fs.statSync(pluginDir + name).isDirectory();
             });
             for (let dir of dirList) {
                 let dirPath = pluginDir + dir + '/';
@@ -24,9 +26,9 @@ export default class PluginManager {
                 if (fs.existsSync(packageJsonPath)) {
                     plugin = JSON.parse(fs.readFileSync(packageJsonPath).toString());
                 }
-                plugin["name"] = plugin["name"] ?? dir;
+                plugin["name"] ??= dir;
                 plugin["dirPath"] = dirPath;
-                plugin["alias"] = dir;
+                plugin["alias"] ??= dir.replace(pluginDirPrefix, "");
                 plugin["status"] = plugin["status"] ?? "unload";
                 
                 this.pluginList.push(plugin);
