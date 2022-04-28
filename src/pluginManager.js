@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-let pluginDirPrefix = "had-nothing-plugin-";
+const rangeName = "@had-nothing-plugins";
 
 export default class PluginManager {
     pluginList = [];
@@ -9,7 +9,7 @@ export default class PluginManager {
     loadedPluginNum = -1;
     
     constructor() {
-        let pluginDir = global.config["pluginDir"] ?? "./node_modules/";
+        let pluginDir = global.config["pluginDir"] ?? "./node_modules/" + rangeName + "/";
         this.scanPluginDir(pluginDir);
     }
     
@@ -17,7 +17,7 @@ export default class PluginManager {
         if (pluginDir.slice(-1) !== '/') pluginDir += '/';
         try {
             let dirList = fs.readdirSync(pluginDir).filter((name) => {
-                return name.search("^" + pluginDirPrefix) !== -1 && fs.statSync(pluginDir + name).isDirectory();
+                return fs.statSync(pluginDir + name).isDirectory();
             });
             for (let dir of dirList) {
                 let dirPath = pluginDir + dir + '/';
@@ -26,9 +26,9 @@ export default class PluginManager {
                 if (fs.existsSync(packageJsonPath)) {
                     plugin = JSON.parse(fs.readFileSync(packageJsonPath).toString());
                 }
-                plugin["name"] ??= dir;
+                plugin["name"]=plugin["name"]?plugin["name"].replace(rangeName+"/",""):dir;
                 plugin["dirPath"] = dirPath;
-                plugin["alias"] ??= dir.replace(pluginDirPrefix, "");
+                plugin["alias"] ??= dir;
                 plugin["status"] = plugin["status"] ?? "unload";
                 
                 this.pluginList.push(plugin);
@@ -48,7 +48,7 @@ export default class PluginManager {
             console.log("Loading plugin '" + plugin["name"] + "'...");
             try {
                 plugin["status"] = "loaded";
-                plugin["module"] = await import("../" + plugin.dirPath + plugin.main);
+                plugin["module"] = await import( rangeName +"/" + plugin.name);
             } catch (err) {
                 console.warn(err);
                 plugin["status"] = "error";
