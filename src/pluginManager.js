@@ -4,6 +4,7 @@ export default class PluginManager {
     pluginList = [];
     pluginNameMap = {};
     pluginActive = {};
+    loadedPluginNum=-1;
     
     constructor() {
         let pluginDir = global.config["pluginDir"] ?? "./plugin/";
@@ -25,6 +26,7 @@ export default class PluginManager {
                 }
                 plugin["name"] = plugin["name"] ?? dir;
                 plugin["dirPath"] = dirPath;
+                plugin["alias"]=dir;
                 plugin["status"] = plugin["status"] ?? "unload";
                 
                 this.pluginList.push(plugin);
@@ -36,24 +38,38 @@ export default class PluginManager {
     }
     
     async loadPlugins() {
-        try {
-            let pluginListNeedLoad = this.pluginList.filter((plugin) => {
-                return plugin.status === "unload";
-            });
-            for (let plugin of pluginListNeedLoad) {
+        console.log("Loading plugins...");
+        let pluginListNeedLoad = this.pluginList.filter((plugin) => {
+            return plugin.status === "unload";
+        });
+        for (let plugin of pluginListNeedLoad) {
+            console.log("Loading plugin '" + plugin["name"] + "'...");
+            try {
+                plugin["status"] = "loaded";
                 plugin["module"] = await import("../" + plugin.dirPath + plugin.main);
-                plugin["status"] = "load";
+            } catch (err) {
+                console.warn(err);
+                plugin["status"] = "error";
             }
-        } catch (err) {
-            console.warn(err);
         }
+        this.loadedPluginNum=pluginListNeedLoad.filter((plugin)=>{ return plugin["status"]==="loaded"; }).length;
+        console.log("Loaded "+this.loadedPluginNum+" plugins!");
     }
     
-    activePlugin(name) {
+    async activePlugin(name, alias) {
+        console.log("Activating plugin '"+name+"'...");
         if (this.pluginNameMap.hasOwnProperty(name)) {
             let pluginIndex = this.pluginNameMap[name];
             try {
-                this.pluginActive[name] = this.pluginList[pluginIndex]["module"].default.Factory();
+                let moduleDefault=this.pluginList[pluginIndex]["module"].default;
+                let factoryFunc;
+                if((typeof moduleDefault)==='class') {
+                    factoryFunc=moduleDefault.Factory;
+                }
+                else if((typeof moduleDefault)==='function') {
+                    factoryFunc=moduleDefault;
+                }
+                this.pluginActive[alias] = await factoryFunc();
             } catch (err) {
                 console.warn(err);
                 return false;
