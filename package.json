@@ -18,7 +18,9 @@
     },
     "homepage": "https://github.com/HadTeam/had-nothing#readme",
     "dependencies": {
+        "extends-classes": "^1.0.5",
         "fs-extra": "^10.1.0",
-        "mqtt": "^4.3.7"
+        "mqtt": "^4.3.7",
+        "wait-for-event": "^2.0.1"
     }
 }

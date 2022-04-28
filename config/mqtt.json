@@ -1,1 +1,3 @@
-{}
+{
+    "brokerUrl": "mqtt://Test:Test123456@mqtt.had.xin?clientId=awa"
+}
