@@ -23,7 +23,6 @@ export default class ConfigManager {
                         break;
                 }
             }
-            
             return config;
         } catch (err) {
             console.warn(err);
