@@ -3,10 +3,10 @@ import fs from 'fs';
 const rangeName = "@had-nothing-plugins";
 
 export default class PluginManager {
-    pluginList = [];
+    plugins = [];
     pluginNameMap = {};
     pluginActive = {};
-    loadedPluginNum = -1;
+    loadedNum = 0;
     
     constructor() {
         let pluginDir = global.config["pluginDir"] ?? "./node_modules/" + rangeName + "/";
@@ -26,13 +26,13 @@ export default class PluginManager {
                 if (fs.existsSync(packageJsonPath)) {
                     plugin = JSON.parse(fs.readFileSync(packageJsonPath).toString());
                 }
-                plugin["name"]=plugin["name"]?plugin["name"].replace(rangeName+"/",""):dir;
+                plugin["name"] = plugin["name"] ? plugin["name"].replace(rangeName + "/", "") : dir;
                 plugin["dirPath"] = dirPath;
                 plugin["alias"] ??= dir;
                 plugin["status"] = plugin["status"] ?? "unload";
                 
-                this.pluginList.push(plugin);
-                this.pluginNameMap[plugin.name] = this.pluginList.length - 1;
+                this.plugins.push(plugin);
+                this.pluginNameMap[plugin.name] = this.plugins.length - 1;
             }
         } catch (err) {
             console.warn(err);
@@ -41,23 +41,23 @@ export default class PluginManager {
     
     async loadPlugins() {
         console.log("Loading plugins...");
-        let pluginListNeedLoad = this.pluginList.filter((plugin) => {
+        let pluginListNeedLoad = this.plugins.filter((plugin) => {
             return plugin.status === "unload";
         });
         for (let plugin of pluginListNeedLoad) {
             console.log("Loading plugin '" + plugin["name"] + "'...");
             try {
                 plugin["status"] = "loaded";
-                plugin["module"] = await import( rangeName +"/" + plugin.name);
+                plugin["module"] = await import( rangeName + "/" + plugin.name);
             } catch (err) {
                 console.warn(err);
                 plugin["status"] = "error";
             }
         }
-        this.loadedPluginNum = pluginListNeedLoad.filter((plugin) => {
+        this.loadedNum = pluginListNeedLoad.filter((plugin) => {
             return plugin["status"] === "loaded";
         }).length;
-        console.log("Loaded " + this.loadedPluginNum + " plugins!");
+        console.log("Loaded " + this.loadedNum + " plugins!");
     }
     
     async activePlugin(name, alias) {
@@ -65,7 +65,7 @@ export default class PluginManager {
         if (this.pluginNameMap.hasOwnProperty(name)) {
             let pluginIndex = this.pluginNameMap[name];
             try {
-                let moduleDefault = this.pluginList[pluginIndex]["module"].default;
+                let moduleDefault = this.plugins[pluginIndex]["module"].default;
                 let factoryFunc;
                 if ((typeof moduleDefault) === 'class') {
                     factoryFunc = moduleDefault.Factory;
@@ -77,7 +77,7 @@ export default class PluginManager {
                 console.warn(err);
                 return false;
             }
-            this.pluginList[pluginIndex]["status"] = "active";
+            this.plugins[pluginIndex]["status"] = "active";
             return true;
         }
         return false;
