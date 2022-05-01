@@ -37,12 +37,11 @@ export default class ComponentManager {
                     if (!heartBeatFunc(uuid)) diedCount++;
                     else diedCount = 0;
                     if (diedCount >= global.config?.components?.heartBeatDied ?? 5) {
-                    
+                        this.remove(uuid);
                     }
                 }, global.config?.component?.heartBeatDelay ?? 500)
                 
                 this.components.push(component);
-                let componentIndex = this.componentIdMap[uuid] = this.components.length - 1;
             } catch (err) {
                 console.warn(err);
             }
