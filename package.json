@@ -21,7 +21,9 @@
         "@had-nothing-plugins/mqtt-client": "^1.0.0",
         "extends-classes": "^1.0.5",
         "fs-extra": "^10.1.0",
+        "luxon": "^2.3.2",
         "mqtt": "^4.3.7",
+        "uuid": "^8.3.2",
         "wait-for-event": "^2.0.1"
     }
 }
