@@ -33,16 +33,17 @@ export default class ComponentManager {
                 };
                 
                 component["status"] = "online";
-                let heartBeatDelay=global.config?.component?.heartBeatDelay ?? 500;
-                let diedCountLimit=global.config?.components?.heartBeatDied ?? 5;
+                let heartBeatDelay = global.config?.component?.heartBeatDelay ?? 500;
+                let diedCountLimit = global.config?.components?.heartBeatDied ?? 5;
                 let diedCount = 0;
                 component["heartBeat"] = setInterval(async () => {
-                    let ret=false;
+                    let ret = false;
                     try {
-                        ret= await pTimeout(heartBeatFunc(uuid), heartBeatDelay, () => {
+                        ret = await pTimeout(heartBeatFunc(uuid), heartBeatDelay, () => {
                             ret = false;
                         });
-                    } catch (err) {}
+                    } catch (err) {
+                    }
                     if (!ret) diedCount++;
                     else diedCount = 0;
                     if (diedCount >= diedCountLimit) {
@@ -51,9 +52,9 @@ export default class ComponentManager {
                 }, heartBeatDelay);
                 
                 this.components.push(component);
-                this.componentIdMap[uuid]=this.components.length-1;
+                this.componentIdMap[uuid] = this.components.length - 1;
                 
-                console.log("New component "+(component.name??"unnamed")+"{uuid:"+uuid+"} registered.");
+                console.log("New component " + (component.name ?? "unnamed") + "{uuid:" + uuid + "} registered.");
                 
                 return true;
             } catch (err) {
@@ -65,7 +66,7 @@ export default class ComponentManager {
     
     remove(uuid) {
         let index = this.componentIdMap[uuid];
-        console.log("Component "+(this.components[index]["name"]??"unnamed")+"{uuid:"+uuid+"} removed.");
+        console.log("Component " + (this.components[index]["name"] ?? "unnamed") + "{uuid:" + uuid + "} removed.");
         clearInterval(this.components[index]["heartBeat"]);
         this.components[index] = undefined;
         this.componentIdMap[uuid] = undefined;
