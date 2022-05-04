@@ -3,8 +3,11 @@ import PluginManager from "./pluginManager.js";
 import ComponentManager from "./componentManager.js";
 
 import _ from "lodash";
+import * as events from "events";
 
 global.config = ConfigManager.parse();
+
+global.events=new events.EventEmitter();
 
 global.componentManager = new ComponentManager();
 
