@@ -19,6 +19,7 @@
     "homepage": "https://github.com/HadTeam/had-nothing#readme",
     "dependencies": {
         "@had-nothing-plugins/mqtt-client": "^1.0.0",
+        "@had-nothing-plugins/mqtt-component": "^1.0.0",
         "extends-classes": "^1.0.5",
         "fs-extra": "^10.1.0",
         "lodash": "^4.17.21",
