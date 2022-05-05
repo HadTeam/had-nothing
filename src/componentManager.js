@@ -13,6 +13,8 @@ export default class ComponentManager {
     components = [];
     componentIdMap = {};
     
+    componentType=new Map();
+    
     async register(uuid, funcHandler) {
         if (!(uuid in this.componentIdMap) || this.componentIdMap[uuid]===undefined) {
             try {
@@ -54,6 +56,8 @@ export default class ComponentManager {
                 
                 this.components.push(component);
                 this.componentIdMap[uuid] = this.components.length - 1;
+    
+                this.handleType(uuid, 'init');
                 
                 console.log("New component " + (component.name ?? "unnamed") + "{uuid:" + uuid + "} registered.");
                 
@@ -66,10 +70,27 @@ export default class ComponentManager {
     }
     
     remove(uuid) {
+        this.handleType(uuid, 'remove');
         let index = this.componentIdMap[uuid];
         console.log("Component " + (this.components[index]["name"] ?? "unnamed") + "{uuid:" + uuid + "} removed.");
         clearInterval(this.components[index]["heartBeat"]);
         this.components[index] = undefined;
         this.componentIdMap[uuid] = undefined;
+    }
+    
+    handleType(uuid, stage) {
+        let component=this.getComponentById(uuid);
+        if(component["type"] && this.componentType.has(component["type"])) {
+            let typeHandler=this.componentType.get(component["type"]);
+            switch (stage) {
+                case 'init': typeHandler.init(uuid); break;
+                case 'remove': typeHandler.remove(uuid); break;
+                default: break;
+            }
+        }
+    }
+    
+    getComponentById(uuid) {
+        return this.components[this.componentIdMap[uuid]];
     }
 }
