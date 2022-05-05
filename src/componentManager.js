@@ -36,7 +36,7 @@ export default class ComponentManager {
                 };
                 
                 component["status"] = "online";
-                let heartBeatDelay = global.config?.component?.heartBeatDelay ?? 500;
+                let heartBeatDelay = global.config?.component?.heartBeatDelay ?? 1000;
                 let diedCountLimit = global.config?.components?.heartBeatDied ?? 5;
                 let diedCount = 0;
                 component["heartBeat"] = setInterval(async () => {
