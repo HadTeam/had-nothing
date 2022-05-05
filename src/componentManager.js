@@ -14,7 +14,7 @@ export default class ComponentManager {
     componentIdMap = {};
     
     async register(uuid, funcHandler) {
-        if (!(uuid in this.componentIdMap)) {
+        if (!(uuid in this.componentIdMap) || this.componentIdMap[uuid]===undefined) {
             try {
                 let component = await funcHandler(uuid, "getComponentInfo", getPanelInfo());
                 component["uuid"] = uuid;
@@ -28,6 +28,7 @@ export default class ComponentManager {
                     let randomAuthSecret = crypto.randomBytes(8).toString('hex');
                     let tempAuthKey = await funcHandler(uuid, "heartBeat", [randomAuthSecret]);
                     let expectedKey = getSha1Hex(component["authKey"] + randomAuthSecret);
+                    tempAuthKey=tempAuthKey.toLowerCase()
                     // console.log("[heartBeatFunc]",diedCount,tempAuthKey,expectedKey,tempAuthKey === expectedKey);
                     return tempAuthKey === expectedKey;
                 };
